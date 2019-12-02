@@ -33,12 +33,13 @@ class MainController extends Controller
         $request['url'] = $requestRaw['url'];
 
         $request['method'] = $requestRaw['method'] ?? 'GET';
+        $request['options'] = $requestRaw['options'] ?? [];
         $request['auth_type'] = $requestRaw['auth_type'] ?? '';
         $request['auth_token'] = $requestRaw['auth_token'] ?? '';
         $request['auth_username'] = $requestRaw['auth_username'] ?? '';
         $request['auth_password'] = $requestRaw['auth_password'] ?? '';
         $request['body_type'] = $requestRaw['body_type'] ?? '';
-        $request['body'] = $requestRaw['body'] ?? '';
+        $request['body'] = $requestRaw['body'] ?? '{}';
         $headersRaw = array_filter( explode( "\n", $requestRaw['headers'] ?? '' ) );
 
         $headers = [];
@@ -68,7 +69,7 @@ class MainController extends Controller
         $verb = $request['method'];
         $body_type = $request['body_type'] ?? null;
 
-        $payload = $request['body'] ?? null;
+        $payload = $request['body'] ?? '{}';
 
         if ( $body_type == 'json' ) {
             
@@ -78,9 +79,15 @@ class MainController extends Controller
             
             $payload = $payload;
 
+        } else {
+
+            $payload = '{}';
+            
         }
 
-        $client = new Client( [ 'base_uri' => $url, 'http_errors' => true, 'stream' => true ] );
+        $isShowHttpErrors = $request['options']['http_errors'] ?? false;
+
+        $client = new Client( [ 'base_uri' => $url, 'http_errors' => $isShowHttpErrors, 'stream' => true ] );
 
         if ( $verb == 'POST' ) {
             
